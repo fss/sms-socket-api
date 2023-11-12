@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc *.ts",
+    "build": "npx tsc db.ts db_tables.ts files.ts index.ts socket_module.ts",
     "start": "node index"
   },
   "repository": {
