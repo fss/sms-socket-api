@@ -1,0 +1,17 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es6",
+        "newLine": "lf",
+        "sourceMap": true,
+        "lib": ["es6"],
+        "allowJs": true,
+        "strictNullChecks": true
+    },
+    "exclude": [
+        "node_modules*",
+        "tools"
+    ]
+}

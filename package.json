@@ -1,0 +1,41 @@
+{
+  "name": "sms-socket-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fss/sms-socket-api.git"
+  },
+  "author": "Rafal Drag <rafal.drag@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fss/sms-socket-api/issues"
+  },
+  "homepage": "https://github.com/fss/sms-socket-api#readme",
+  "dependencies": {
+    "eslint": "^8.53.0",
+    "express": "^4.18.2",
+    "lodash": "^4.17.21",
+    "restify-errors": "^8.0.2",
+    "socket.io": "^4.7.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.9.0",
+    "@types/restify-errors": "^4.3.8",
+    "@types/socket.io": "^3.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "eslint-config-standard-with-typescript": "^36.1.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "typescript": "^5.2.2"
+  }
+}
