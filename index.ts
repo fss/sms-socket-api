@@ -2,18 +2,18 @@ import * as express from 'express'
 import { initDatabase, insert, query } from './db'
 import { allTables } from './db_tables'
 import { BadRequestError } from 'restify-errors'
-import { hasPhoneConnected, sendSms } from './socket_module'
+import { hasPhoneConnected, sendSms, setup } from './socket_module'
+
+const port = 8888
 
 let queueBusy = false
 let queueEmpty = false
-
-const port = parseInt(process.env.PORT ?? '') || 8888
 
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ limit: 64 * 1024 * 1024 }))
 
-const httpServer = require('../sms-socket-api/socket_module').setup(app, async sms => {
+const httpServer = setup(app, async sms => {
   const { sender, message } = sms
 
   if (!sender) {
