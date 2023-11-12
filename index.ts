@@ -25,7 +25,7 @@ const httpServer = require('../sms-socket-api/socket_module').setup(app, async s
   }
 
   try {
-    const receivedId = await insert(allTables[0], { sender, text: message })
+    const receivedId = await insert(allTables[0], { sender, body: message })
     console.log(`received sms from ${sender}`, message, receivedId)
   } catch (e) {
     console.error(`could not store received messages: ${e}`)
