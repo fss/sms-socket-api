@@ -1,8 +1,8 @@
 import * as express from 'express'
-import { initDatabase, insert, query } from './db'
-import { allTables } from './db_tables'
-import { BadRequestError } from 'restify-errors'
+import { initDatabase, query, allTables } from './db'
 import { hasPhoneConnected, sendSms, setup } from './socket_module'
+import { getMessages, storeQueuedMessage, storeReceivedMessage, storeSentMessage } from './db_messages'
+import { BadRequestError } from 'restify-errors'
 
 const port = 8888
 
@@ -14,21 +14,12 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ limit: 64 * 1024 * 1024 }))
 
 const httpServer = setup(app, async sms => {
-  const { sender, message } = sms
-
-  if (!sender) {
-    console.error('got SMS with no sender info')
-    return
-  } else if (!message) {
-    console.error('got SMS with no body')
-    return
-  }
-
   try {
-    const receivedId = await insert(allTables[0], { sender, body: message })
+    const { sender, message } = sms
+    const receivedId = await storeReceivedMessage(sender, message)
     console.log(`received sms from ${sender}`, message, receivedId)
   } catch (e) {
-    console.error(`could not store received messages: ${e}`)
+    console.error(`could not store received SMS: ${e}`)
   }
 })
 
@@ -38,17 +29,24 @@ app.get('/', (httpReq, httpRes) => {
 
 app.post('/sms', async (httpReq, httpRes) => {
   const { body, recipient } = httpReq.body
-  if (!body) {
-    throw new BadRequestError('No body provided')
-  }
-
-  if (!recipient) {
-    throw new BadRequestError('No recipient provided')
-  }
-
-  const id = await insert(allTables[1], { body, recipient })
+  const id = await storeQueuedMessage(recipient, body)
   httpRes.json({ status: 'waiting', id })
   queueEmpty = false
+})
+
+app.get('/sms/:kind', async (httpReq, httpRes) => {
+  const limit = parseInt(`${httpReq.query.limit}`) || 50
+  const offset = parseInt(`${httpReq.query.from}`) || 0
+  let messages: any[]
+
+  if (httpReq.params.kind === 'sent') {
+    messages = await getMessages(allTables[2].name, limit, offset)
+  } else if (httpReq.params.kind === 'received') {
+    messages = await getMessages(allTables[0].name, limit, offset)
+  } else {
+    throw new BadRequestError('invalid type')
+  }
+  httpRes.json(messages)
 })
 
 async function processQueue () {
@@ -62,9 +60,8 @@ async function processQueue () {
   if (queuedMessage.length) {
     const { id, body, recipient } = queuedMessage[0]
     if (sendSms(recipient, body)) {
-      const sentId = await insert(allTables[2], { body, recipient })
+      const sentId = await storeSentMessage(body, recipient, id)
       if (sentId) {
-        await query(`delete from ${tblName} where id=${id}`)
         console.log(`sent SMS to ${recipient} [id=${sentId}]`, body)
       }
     }

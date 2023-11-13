@@ -1,10 +1,35 @@
 import { Database as driver } from 'sqlite3'
 import { type Database, open } from 'sqlite'
 import { getDatabaseFilePath } from './files'
-import { allTables, type TableDefinition } from './db_tables'
 import { PreconditionFailedError } from 'restify-errors'
 
 let db: Database | null = null
+
+interface TableDefinition {
+  name: string
+  fields: string[]
+}
+
+const baseFields = [
+  'id integer primary key autoincrement',
+  'body text not null',
+  'date datetime default current_timestamp'
+]
+
+export const allTables: TableDefinition[] = [
+  {
+    name: 'received',
+    fields: baseFields.concat(['sender text not null'])
+  },
+  {
+    name: 'queue',
+    fields: baseFields.concat(['recipient text not null'])
+  },
+  {
+    name: 'sent',
+    fields: baseFields.concat(['recipient text not null'])
+  }
+]
 
 export async function listTables () {
   return db ? await db.all('select name from sqlite_master where type=\'table\'') : []
